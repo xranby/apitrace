@@ -35,9 +35,15 @@
 #include "trace_writer.hpp"
 #include "trace_format.hpp"
 
+#include <sys/time.h>
 
 namespace trace {
 
+static long get_current_time() {
+    struct timeval now;
+    gettimeofday(&now, NULL);
+    return now.tv_sec * 1000000 + now.tv_usec;
+}
 
 Writer::Writer() :
     call_no(0)
@@ -152,10 +158,13 @@ unsigned Writer::beginEnter(const FunctionSig *sig, unsigned thread_id) {
 
 void Writer::endEnter(void) {
     _writeByte(trace::CALL_END);
+    call_time = get_current_time();
 }
 
 void Writer::beginLeave(unsigned call) {
+    call_time = get_current_time() - call_time;
     _writeByte(trace::EVENT_LEAVE);
+    _writeUInt(call_time);
     _writeUInt(call);
 }
 

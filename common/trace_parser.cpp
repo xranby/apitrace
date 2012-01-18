@@ -413,6 +413,7 @@ void Parser::parse_enter(Mode mode) {
 
 
 Call *Parser::parse_leave(Mode mode) {
+    Value* call_time = parse_uint();
     unsigned call_no = read_uint();
     Call *call = NULL;
     for (CallList::iterator it = calls.begin(); it != calls.end(); ++it) {
@@ -426,6 +427,7 @@ Call *Parser::parse_leave(Mode mode) {
         return NULL;
     }
 
+    call->call_time = call_time;
     if (parse_call_details(call, mode)) {
         return call;
     } else {

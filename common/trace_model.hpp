@@ -414,6 +414,7 @@ public:
     unsigned no;
     const FunctionSig *sig;
     std::vector<Value *> args;
+    Value *call_time;
     Value *ret;
 
     CallFlags flags;

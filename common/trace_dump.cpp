@@ -231,6 +231,9 @@ public:
             _visit(call->ret);
         }
         
+        os << " // call time = ";
+        _visit(call->call_time);
+        
         if (callFlags & CALL_FLAG_INCOMPLETE) {
             os << " // " << red << "incomplete" << normal;
         }

@@ -45,6 +45,7 @@ namespace trace {
     protected:
         File *m_file;
         unsigned call_no;
+        long call_time;
 
         std::vector<bool> functions;
         std::vector<bool> structs;
