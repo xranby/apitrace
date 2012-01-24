@@ -30,6 +30,7 @@
 
 from specs.stdapi import API
 from specs.glapi import glapi
+from specs.glapi import dummyapi
 from specs.glxapi import glxapi
 from gltrace import GlTracer
 from dispatch import function_pointer_type, function_pointer_value
@@ -73,6 +74,7 @@ if __name__ == '__main__':
     api = API()
     api.addApi(glxapi)
     api.addApi(glapi)
+    api.addApi(dummyapi)
     tracer = GlxTracer()
     tracer.trace_api(api)
 

@@ -32,6 +32,7 @@ covers all the functions we support.
 import specs.stdapi as stdapi
 from dispatch import Dispatcher
 from specs.glapi import glapi
+from specs.glapi import dummyapi
 from specs.glxapi import glxapi
 from specs.wglapi import wglapi
 from specs.cglapi import cglapi
@@ -41,6 +42,9 @@ from specs.glesapi import glesapi
 
 # See http://www.opengl.org/registry/ABI/
 public_symbols = set([
+    # Extra hooks for apitrace profiler
+    "apitraceNewFrame",
+
     # GL 1.2 and ARB_multitexture
     "glAccum",
     "glAlphaFunc",
@@ -506,6 +510,36 @@ void * __getPrivateProcAddress(const char *procName);
     def isFunctionPublic(self, function):
         return function.name in public_symbols or function.name.startswith('CGL')
 
+def function_pointer_type(function):
+    return '__PFN' + function.name.upper()
+def function_pointer_value(function):
+    return '__' + function.name + '_ptr'
+
+class DummyDispatcher(GlDispatcher):
+    def header(self):
+        pass
+    def is_public_function(self, function):
+        return function.name in public_symbols or function.name.startswith('CGL')
+    def get_true_pointer(self, function):
+        ptype = function_pointer_type(function)
+        pvalue = function_pointer_value(function)
+        print '    if (!%s) {' % (pvalue,)
+        print '        %s = (%s)NULL;' % (pvalue, ptype)
+        print '    }'
+    def invokeFunction(self, function):
+        ptype = function_pointer_type(function)
+        pvalue = function_pointer_value(function)
+        print 'typedef ' + function.prototype('* %s' % ptype) + ';'
+        print 'static %s %s = NULL;' % (ptype, pvalue)
+        print
+        print 'static inline ' + function.prototype('__' + function.name) + ' {'
+        if function.type is stdapi.Void:
+            ret = ''
+        else:
+            ret = 'return '
+        self.get_true_pointer(function)
+        print '}'
+        print
 
 if __name__ == '__main__':
     print
@@ -535,6 +569,9 @@ if __name__ == '__main__':
     print
     dispatcher.dispatch_api(glesapi)
     print
+
+    dispatcher = DummyDispatcher()
+    dispatcher.dispatch_api(dummyapi)
 
     print '#endif /* !_GLPROC_HPP_ */'
     print

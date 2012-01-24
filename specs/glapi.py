@@ -2804,3 +2804,7 @@ glapi.addFunctions([
     # GL_WIN_swap_hint
     GlFunction(Void, "glAddSwapHintRectWIN", [(GLint, "x"), (GLint, "y"), (GLsizei, "width"), (GLsizei, "height")]),
 ])
+
+# apitrace profiling
+dummyapi = API('Dummy')
+dummyapi.addFunctions([GlFunction(Void, "apitraceNewFrame", [])])
